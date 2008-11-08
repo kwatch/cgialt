@@ -109,7 +109,7 @@ fcgi.rb    Copyright (C) 2004 Minero Aoki
           exit 0 if graceful
         end
       end
-      
+
       def session
         sock, addr = *@server.accept
         return unless sock
@@ -126,17 +126,15 @@ fcgi.rb    Copyright (C) 2004 Minero Aoki
       def next_request(sock)
         while rec = sock.read_record
           if rec.management_record?
-            case rec.type
-            when FCGI_GET_VALUES
+            if rec.type == FCGI_GET_VALUES
               sock.send_record handle_GET_VALUES(rec)
             else
               sock.send_record UnknownTypeRecord.new(rec.request_id, rec.type)
             end
           else
-            case rec.type
-            when FCGI_BEGIN_REQUEST
+            if (rec_type = rec.type) == FCGI_BEGIN_REQUEST
               @buffers[rec.request_id] = RecordBuffer.new(rec)
-            when FCGI_ABORT_REQUEST
+            elsif rec_type == FCGI_ABORT_REQUEST
               raise "got ABORT_REQUEST"   # FIXME
             else
               buf = @buffers[rec.request_id]   or next # inactive request
@@ -196,12 +194,13 @@ fcgi.rb    Copyright (C) 2004 Minero Aoki
         Record.class_for(type).parse(reqid, read_record_body(clen, padlen))
       end
 
-      def read_record_body(clen, padlen)
-        buf = ''
-        while buf.length < clen
-          buf << @socket.read([1024, clen - buf.length].min)
-        end
-        @socket.read padlen if padlen
+      def read_record_body(content_len, padding_len)
+        #*buf = ''
+        #*while buf.length < content_len
+        #*  buf << @socket.read([1024, content_len - buf.length].min)
+        #*end
+        buf = @socket.read(content_len)
+        @socket.read padding_len if padding_len
         buf
       end
       private :read_record_body
@@ -324,8 +323,7 @@ fcgi.rb    Copyright (C) 2004 Minero Aoki
         ::FCGI::ProtocolVersion
       end
 
-      attr_reader :type
-      attr_reader :request_id
+      attr_reader :type, :request_id
 
       def management_record?
         @request_id == FCGI_NULL_REQUEST_ID
@@ -333,16 +331,21 @@ fcgi.rb    Copyright (C) 2004 Minero Aoki
 
       def serialize
         body = make_body()
-        padlen = body.length % 8
-        header = make_header(body.length, padlen)
-        header + body + "\000" * padlen
+        padding_length = body.length % 8
+        header = make_header(body.length, padding_length)
+        "#{header}#{body}#{'\000' * padding_length}"
       end
 
       private
 
-      def make_header(clen, padlen)
-        [version(), @type, @request_id, clen, padlen, 0].pack(HEADER_FORMAT)
+      def make_header(content_length, pading_length)
+        [::FCGI::ProtocolVersion, @type, @request_id, content_length, padding_length, 0].pack(HEADER_FORMAT)
       end
+
+      def make_body
+        raise NotImplementedError.new("#{self.class.name}#make_body(): not implemented.")
+      end
+
     end
 
     class BeginRequestRecord < Record
@@ -351,7 +354,7 @@ fcgi.rb    Copyright (C) 2004 Minero Aoki
       # uint8_t  reserved[5];
       BODY_FORMAT = 'nCC5'
 
-      def BeginRequestRecord.parse(id, body)
+      def self.parse(id, body)
         role, flags, *reserved = *body.unpack(BODY_FORMAT)
         new(id, role, flags)
       end
@@ -364,14 +367,14 @@ fcgi.rb    Copyright (C) 2004 Minero Aoki
 
       attr_reader :role
       attr_reader :flags
-      
+
       def make_body
         [@role, @flags, 0, 0, 0, 0, 0].pack(BODY_FORMAT)
       end
     end
 
     class AbortRequestRecord < Record
-      def AbortRequestRecord.parse(id, body)
+      def self.parse(id, body)
         new(id)
       end
 
@@ -386,7 +389,7 @@ fcgi.rb    Copyright (C) 2004 Minero Aoki
       # uint8_t  reserved[3];
       BODY_FORMAT = 'NCC3'
 
-      def self::parse(id, body)
+      def self.parse(id, body)
         appstatus, protostatus, *reserved = *body.unpack(BODY_FORMAT)
         new(id, appstatus, protostatus)
       end
@@ -412,14 +415,14 @@ fcgi.rb    Copyright (C) 2004 Minero Aoki
       # uint8_t reserved[7];
       BODY_FORMAT = 'CC7'
 
-      def self::parse(id, body)
+      def self.parse(id, body)
         type, *reserved = *body.unpack(BODY_FORMAT)
         new(id, type)
       end
 
-      def initialize(id, t)
+      def initialize(id, type)
         super FCGI_UNKNOWN_TYPE, id
-        @unknown_type = t
+        @unknown_type = type
       end
 
       attr_reader :unknown_type
@@ -439,28 +442,32 @@ fcgi.rb    Copyright (C) 2004 Minero Aoki
       def self::parse_values(buf)
         result = {}
         until buf.empty?
-          name, value = *read_pair(buf)
+          #*name, value = *read_pair(buf)
+          #*result[name] = value
+          name_len = read_length(buf)
+          value_len = read_length(buf)
+          name = buf.slice!(0, name_len)
+          value = buf.slice!(0, value_len)
           result[name] = value
         end
         result
       end
-      
+
       def self::read_pair(buf)
-        nlen = read_length(buf)
-        vlen = read_length(buf)
-        return buf.slice!(0, nlen), buf.slice!(0, vlen)
+        name_len = read_length(buf)
+        value_len = read_length(buf)
+        return buf.slice!(0, name_len), buf.slice!(0, value_len)
       end
-      
+
+      MASK = ((1<<31) - 1)
       def self::read_length(buf)
-        if buf[0] >> 7 == 0
-        then buf.slice!(0,1)[0]
-        else buf.slice!(0,4).unpack('N')[0] & ((1<<31) - 1)
-        end
+        buf[0] >> 7 == 0 ? buf.slice!(0,1)[0] \
+                         : buf.slice!(0,4).unpack('N')[0] & MASK
       end
 
       def initialize(type, id, values)
         super type, id
-        @values = values
+        @values = values   # Hash
       end
 
       attr_reader :values
@@ -470,19 +477,13 @@ fcgi.rb    Copyright (C) 2004 Minero Aoki
       def make_body
         buf = ''
         @values.each do |name, value|
-          buf << serialize_length(name.length)
-          buf << serialize_length(value.length)
-          buf << name
-          buf << value
+          buf << "#{serialize_length(name.length)}#{serialize_length(value.length)}#{name}#{value}"
         end
         buf
       end
 
       def serialize_length(len)
-        if len < 0x80
-        then len.chr
-        else [len | (1<<31)].pack('N')
-        end
+        len < 128 ? len.chr : [len | (1<<31)].pack('N')
       end
     end
 
@@ -507,7 +508,7 @@ fcgi.rb    Copyright (C) 2004 Minero Aoki
         new(id, body)
       end
 
-      def initialize(type, id, flagment)
+      def initialize(type, id, flagment)   # abstract
         super type, id
         @flagment = flagment
       end
@@ -558,4 +559,3 @@ fcgi.rb    Copyright (C) 2004 Minero Aoki
     end
 
   end # FCGI class
-
