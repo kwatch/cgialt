@@ -41,39 +41,67 @@ class CGI
   # Unescape a string that has been HTML-escaped
   #   CGI::unescapeHTML("Usage: foo &quot;bar&quot; &lt;baz&gt;")
   #      # => "Usage: foo \"bar\" <baz>"
-  def CGI::unescapeHTML(string)
-    string.gsub(/&(amp|quot|gt|lt|\#[0-9]+|\#x[0-9A-Fa-f]+);/n) do
-      match = $1.dup
-      case match
-      when 'amp'                 then '&'
-      when 'quot'                then '"'
-      when 'gt'                  then '>'
-      when 'lt'                  then '<'
-      when /\A#0*(\d+)\z/n       then
-        if Integer($1) < 256
-          Integer($1).chr
-        else
-          if Integer($1) < 65536 and ($KCODE[0] == ?u or $KCODE[0] == ?U)
-            [Integer($1)].pack("U")
-          else
-            "&##{$1};"
-          end
+  def self.unescapeHTML(string)
+    table = UNESCAPE_ENTITIES
+    unicode_p = $KCODE[0] == ?u || $KCODE[0] == ?U
+    string.gsub(/&[a-zA-F0-9]+;/n) do
+      match = $&
+      key = match[1..-2]
+      if (s = table[key])
+        s
+      elsif key =~ /\A#0*(\d+)\z/n
+        if   (v = Integer($1)) < 256 ;  v.chr
+        elsif v < 65536 && unicode_p ;  [v].pack("U")
+        else                         ;  match
         end
-      when /\A#x([0-9a-f]+)\z/ni then
-        if $1.hex < 256
-          $1.hex.chr
-        else
-          if $1.hex < 65536 and ($KCODE[0] == ?u or $KCODE[0] == ?U)
-            [$1.hex].pack("U")
-          else
-            "&#x#{$1};"
-          end
+      elsif key =~ /\A#x([0-9a-f]+)\z/ni
+        if   (v = $1.hex) < 256      ;  v.chr
+        elsif v < 65536 && unicode_p ;  [v].pack("U")
+        else                         ;  match
         end
       else
-        "&#{match};"
+        match
       end
     end
   end
+  UNESCAPE_ENTITIES = {
+    'amp'=>'&', 'lt'=>'<', 'gt'=>'>', 'quot'=>'"',
+  }
+  #*** original
+  #*def CGI::unescapeHTML(string)
+  #*  string.gsub(/&(amp|quot|gt|lt|\#[0-9]+|\#x[0-9A-Fa-f]+);/n) do
+  #*    match = $1.dup
+  #*    case match
+  #*    when 'amp'                 then '&'
+  #*    when 'quot'                then '"'
+  #*    when 'gt'                  then '>'
+  #*    when 'lt'                  then '<'
+  #*    when /\A#0*(\d+)\z/n       then
+  #*      if Integer($1) < 256
+  #*        Integer($1).chr
+  #*      else
+  #*        if Integer($1) < 65536 and ($KCODE[0] == ?u or $KCODE[0] == ?U)
+  #*          [Integer($1)].pack("U")
+  #*        else
+  #*          "&##{$1};"
+  #*        end
+  #*      end
+  #*    when /\A#x([0-9a-f]+)\z/ni then
+  #*      if $1.hex < 256
+  #*        $1.hex.chr
+  #*      else
+  #*        if $1.hex < 65536 and ($KCODE[0] == ?u or $KCODE[0] == ?U)
+  #*          [$1.hex].pack("U")
+  #*        else
+  #*          "&#x#{$1};"
+  #*        end
+  #*      end
+  #*    else
+  #*      "&#{match};"
+  #*    end
+  #*  end
+  #*end
+  #*** /original
 
 
   # Escape only the tags of certain HTML elements in +string+.

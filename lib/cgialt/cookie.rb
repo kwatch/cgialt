@@ -213,7 +213,9 @@ class CGI
       name, value = pairs.split('=', 2)
       next unless name && value
       name = CGI.unescape(name)
-      values = value.split('&').collect{|v| CGI.unescape(v) }
+      values = value.index('&') \
+               ? value.split('&').collect{|v| CGI.unescape(v) } \
+               : [ CGI.unescape(v) ]
       if cookies.has_key?(name)
         cookies[name].value.concat(values)
       else

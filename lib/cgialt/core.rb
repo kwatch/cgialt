@@ -989,10 +989,9 @@ class CGI
       boundary_end  = nil
       buf = ''
       bufsize = 10 * 1024
-      max_count = MAX_MULTIPART_COUNT
-      n = 0
+      count = MAX_MULTIPART_COUNT
       while true
-        (n += 1) < max_count or raise StandardError.new("too many parameters.")
+        (count -= 1) >= 0 or raise StandardError.new("too many parameters.")
         ## create body (StringIO or Tempfile)
         body = create_body(bufsize < content_length)
         class << body
