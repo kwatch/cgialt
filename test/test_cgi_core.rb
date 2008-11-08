@@ -18,8 +18,16 @@ class CGICoreTest < Test::Unit::TestCase
 
 
   def teardown
-    @environ.each do |key, val| ENV.delete(key) end
+    @environ and @environ.each do |key, val| ENV.delete(key) end
     $stdout = STDOUT
+  end
+
+
+  def test_cgi_core_parse
+    assert_equal({'foo'=>['bar']}, CGI.parse('foo=bar'))
+    assert_equal({'a'=>['10'], 'b'=>['20']}, CGI.parse('a=10&b=20'))
+    assert_equal({'noval'=>['']}, CGI.parse('noval='))
+    assert_equal({'noeq'=>[nil]}, CGI.parse('noeq'))   # same spec as cgi.rb
   end
 
 
