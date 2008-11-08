@@ -215,7 +215,7 @@ class CGI
       name = CGI.unescape(name)
       values = value.index('&') \
                ? value.split('&').collect{|v| CGI.unescape(v) } \
-               : [ CGI.unescape(v) ]
+               : [ CGI.unescape(value) ]
       if cookies.has_key?(name)
         cookies[name].value.concat(values)
       else
