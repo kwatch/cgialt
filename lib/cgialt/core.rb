@@ -1016,7 +1016,8 @@ class CGI
         body = create_body(bufsize < content_length)
         class << body
           alias local_path path
-          attr_reader :original_filename, :content_type
+          #attr_reader :original_filename, :content_type
+          attr_accessor :original_filename, :content_type   # for Ruby1.9
         end
         ## find head and boundary
         head = nil
@@ -1055,11 +1056,13 @@ class CGI
         /Content-Disposition:.* filename=(?:"(.*?)"|([^;\r\n]*))/ni.match(head)
         filename = $1 || $2 || ''
         filename = CGI.unescape(filename) if unescape_filename?()
-        body.instance_variable_set('@original_filename', filename.taint)
+        #body.instance_variable_set('@original_filename', filename.taint)
+        body.original_filename = filename.taint   # for Ruby1.9
         ## content type
         /Content-Type: (.*)/ni.match(head)
         (content_type = $1 || '').chomp!
-        body.instance_variable_set('@content_type', content_type.taint)
+        #body.instance_variable_set('@content_type', content_type.taint)
+        body.content_type = content_type.taint    # for Ruby1.9
         ## query parameter name
         /Content-Disposition:.* name=(?:"(.*?)"|([^;\r\n]*))/ni.match(head)
         name = $1 || $2 || ''
