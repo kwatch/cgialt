@@ -2,6 +2,7 @@ require 'test/unit'
 #require 'cgi'
 require(ENV['CGI'] || 'cgialt')
 
+
 if defined?(CGIExt)
   def if_cgiext;  yield if block_given?; true;  end
   def if_cgialt;  false;  end
@@ -9,6 +10,7 @@ else
   def if_cgiext;  false;  end
   def if_cgialt;  yield if block_given?; true;  end
 end
+
 
 class CGIUtilTest < Test::Unit::TestCase
 
@@ -38,7 +40,7 @@ class CGIUtilTest < Test::Unit::TestCase
   end
 
 
-if_cgiext do
+if_cgiext {
   def test_escape_html!
     ## escape html characters
     input = '<>&"\''
@@ -62,22 +64,22 @@ if_cgiext do
     actual = CGIExt.escape_html!(input)
     assert_equal(expected, actual)
   end
-end
+}
 
 
   def test_unescape_html
     ## unescape html characters
     tdata = [
       ## html entities ('<>&"')
-#      ['&lt;&gt;&amp;&quot;', '<>&"'],
+      ['&lt;&gt;&amp;&quot;', '<>&"'],
       ## otehr html entities (ex. '&copy;')
-#      ['&copy;&heart;', '&copy;&heart;'],
+      ['&copy;&heart;', '&copy;&heart;'],
       ## '&#99' format
       ['&#34;&#38;&#39;&#60;&#62;', '"&\'<>'],
       ## '&#x9999' format
-#      ['&#x0022;&#x0026;&#x0027;&#x003c;&#x003E;', '"&\'<>'],
+      ['&#x0022;&#x0026;&#x0027;&#x003c;&#x003E;', '"&\'<>'],
       ## invalid format
-#      ['&&lt;&amp&gt;&quot&abcdefghijklmn', '&<&amp>&quot&abcdefghijklmn'],
+      ['&&lt;&amp&gt;&quot&abcdefghijklmn', '&<&amp>&quot&abcdefghijklmn'],
     ]
     actual = nil
     tdata.each do |input, expected|
@@ -115,6 +117,7 @@ end
       ## unicode characters
       ["\244\242\244\244\244\246\244\250\244\252", "%A4%A2%A4%A4%A4%A6%A4%A8%A4%AA"],
   ]
+
 
   def test_escape_url
     ## encode url string
@@ -223,9 +226,14 @@ end
     end
     ## default value is frozen empty array
     assert_equal(actual['unknownkey'], [])
-    assert_raise(TypeError) do
-      actual['unknownkey'] << 'foo'
+    ex = nil
+    if "".respond_to?(:encoding)      # Ruby1.9
+      errclass = RuntimeError
+    else
+      errclass = TypeError
     end
+    ex = assert_raise(errclass) { actual['unknownkey'] << 'foo' }
+    assert_equal("can't modify frozen array", ex.message)
   end
 
 

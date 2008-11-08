@@ -43,7 +43,11 @@ class CGI
   #      # => "Usage: foo \"bar\" <baz>"
   def self.unescapeHTML(string)
     table = UNESCAPE_ENTITIES
-    utf8_p = $KCODE[0] == ?u || $KCODE[0] == ?U
+    if "".respond_to?(:encoding)              # Ruby1.9
+      utf8_p = true       # really?
+    else
+      utf8_p = $KCODE[0] == ?u || $KCODE[0] == ?U
+    end
     return string.gsub(/&#?[a-zA-F0-9]+;/n) do
       match = $&
       key = match[1..-2]
