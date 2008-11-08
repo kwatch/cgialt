@@ -794,8 +794,9 @@ class CGI
     params = {}
     query.split(/[&;]/n).each do |pair|
       key, value = pair.split('=', 2)   # value is nil when '=' not found
-      #(params[CGI.unescape(key)] ||= []) << CGI.unescape(value || '')  # desirable
-      (params[CGI.unescape(key)] ||= []) << (value ? CGI.unescape(value) : value)
+      #(params[CGI.unescape(key || '')] ||= []) << CGI.unescape(value || '')  # desirable
+      key = CGI.unescape(key) if key
+      (params[key] ||= []) << (value ? CGI.unescape(value) : value)
     end
     params.default = [].freeze
     return params
