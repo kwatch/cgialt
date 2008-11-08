@@ -44,7 +44,7 @@ class CGI
   def self.unescapeHTML(string)
     table = UNESCAPE_ENTITIES
     unicode_p = $KCODE[0] == ?u || $KCODE[0] == ?U
-    string.gsub(/&[a-zA-F0-9]+;/n) do
+    return string.gsub(/&#?[a-zA-F0-9]+;/n) do
       match = $&
       key = match[1..-2]
       if (s = table[key])
