@@ -182,6 +182,8 @@ class CGICoreTest < Test::Unit::TestCase
                "Content-Language: ja\r\n" +
                "\r\n" +
                euc_str
+    # actual.encoding => US-ASCII, expected.encoding => ASCII-8BIT
+    expected = _convert_encoding(expected, actual)
     assert_equal(expected, actual)
     ## shift_jis
     options = { 'charset'=>'Shift_JIS' }
@@ -194,6 +196,8 @@ class CGICoreTest < Test::Unit::TestCase
                "Content-Language: ja\r\n" +
                "\r\n" +
                sjis_str
+    # actual.encoding => US-ASCII, expected.encoding => ASCII-8BIT
+    expected = _convert_encoding(expected, actual)
     assert_equal(expected, actual)
     ## utf8 (not converted)
     options = { 'charset'=>'utf8' }
@@ -205,6 +209,8 @@ class CGICoreTest < Test::Unit::TestCase
                "Content-Length: 22\r\n" +
                "\r\n" +
                euc_str
+    # actual.encoding => US-ASCII, expected.encoding => ASCII-8BIT
+    expected = _convert_encoding(expected, actual)
     assert_equal(expected, actual)
     ## language is keeped
     options = { 'charset'=>'Shift_JIS', 'language'=>'en' }
@@ -223,6 +229,11 @@ class CGICoreTest < Test::Unit::TestCase
     assert_equal(expected, actual)
   end
 
+  def _convert_encoding(expected, actual)
+    "".respond_to?(:encoding) && actual.encoding != expected.encoding \
+    ? expected.force_encoding(actual.encoding) \
+    : expected
+  end
 
   def test_cgi_core_print
     @environ = {

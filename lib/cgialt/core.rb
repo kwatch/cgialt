@@ -711,7 +711,7 @@ class CGI
     #end
     content = yield
     content = convert_content(content, options)
-    options['length'] = content.length.to_s
+    options['length'] = _strlen(content).to_s
     stdout.print header(options)
     stdout.print content unless env['REQUEST_METHOD'] == 'HEAD'
   end
@@ -732,6 +732,16 @@ class CGI
     return content
   end
   private :convert_content
+  if "".respond_to?(:bytesize)
+    def _strlen(str)
+      str.bytesize
+    end
+  else
+    def _strlen(str)
+      str.length
+    end
+  end
+  private :_strlen
   #*** original
   #*def out(options = "text/html") # :yield:
   #*
