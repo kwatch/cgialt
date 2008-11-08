@@ -700,7 +700,7 @@ class CGI
   # to "ja".
   def out(options='text/html') # :yield:
     options = { 'type' => options } if options.kind_of?(String)
-    stdout = $stdout
+    stdout = stdoutput()
     env = env_table()
     stdout.binmode if defined? stdout.binmode
     #if ENV['REQUEST_METHOD'] == 'HEAD'
@@ -777,7 +777,7 @@ class CGI
   #   cgi = CGI.new
   #   cgi.print    # default:  cgi.print == $DEFAULT_OUTPUT.print
   def print(*options)
-    $stdout.print(*options)
+    stdoutput().print(*options)
     #*** original
     #*stdoutput.print(*options)
     #*** /original
@@ -990,7 +990,7 @@ class CGI
 
     def read_multipart(boundary, content_length)
       ## read first boundary
-      stdin = $stdin
+      stdin = stdinput()
       stdin.binmode if defined? stdin.binmode
       first_line = "--#{boundary}#{EOL}"
       content_length -= first_line.length
@@ -1211,7 +1211,7 @@ class CGI
       if ARGV.empty?
         string = ARGV.join(' ')
       else
-        $stdin.tty? and $stderr.puts "(offline mode: enter name=value pairs on standard input)"
+        STDIN.tty? and $stderr.puts "(offline mode: enter name=value pairs on standard input)"
         string = readlines().join(' ').gsub(/\n/n, '')
       end
       string = string.gsub(/\\=/n, '%3D').gsub(/\\&/n, '%26')
@@ -1269,7 +1269,7 @@ class CGI
           @multipart = true
         else
           raise StandardError.new("too large post data.") if content_length > MAX_CONTENT_LENGTH
-          stdin = $stdin
+          stdin = stdinput()
           stdin.binmode if defined? stdin.binmode
           query_str = stdin.read(content_length)
           @params = CGI.parse(query_str || '')
