@@ -1,0 +1,144 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html lang="en">
+<head>
+  <title>CGIAlt: README.txt</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf8">
+  <link rel="stylesheet" type="text/css" href="style.css">
+</head>
+<body>
+  <h1>CGIAlt: README.txt</h1>
+
+  <p>Release: 0.0.1</p>
+
+  <p>copyright(c) 2007 kuwata-lab.com all rights reserved.</p>
+
+  <p><a href="http://rubyforge.org/projects/cgialt/">http://rubyforge.org/projects/cgialt/</a></p>
+
+  <h2>About</h2>
+
+  <p>'CGIAlt' is an alternative library of standard 'cgi.rb'. It is written in pure Ruby but works faster than 'cgi.rb'.</p>
+
+  <h2>Features</h2>
+
+  <ul>
+    <li>Compatible with 'cgi.rb'.</li>
+
+    <li>Faster and more lightweight than 'cgi.rb'.</li>
+
+    <li>Available to install with <a href="http://rubyforge.org/projects/cgiext/">CGIExt</a> (which is a re-implementation of 'cgi.rb' in C extension).</li>
+  </ul>
+
+  <h2>Install</h2>
+
+  <p>Download <a href="http://rubyforge.org/frs/?group_id=5036">cgialt-0.0.1.tar.gz</a> and install it according to the following:</p>
+  <pre>
+$ tar xzf cgialt-0.0.1.tar.gz
+$ cd cgialt-0.0.1/
+$ ruby setup.rb config
+$ ruby setup.rb setup
+$ sudo ruby setup.rb install
+</pre>
+
+  <p>Or if you have installed RubyGems, you can install CGIAlt by 'gem' command.</p>
+  <pre>
+$ sudo gem install cgialt
+</pre>
+
+  <p>It is recommended not to use RubyGems if you have to develop CGI program because loading RubyGems is very heavy-weight for CGI program.</p>
+
+  <h2>Usage</h2>
+
+  <p>All you have to do is to require 'cgialt' instead of 'cgi', and you can use CGI class which is compatible with 'cgi.rb'.</p>
+  <pre>
+require 'rubygems'   # if you have installed with RubyGems
+require 'cgialt'
+</pre>
+
+  <p>If you want to replace original 'cgi.rb' entirely by 'cgialt', create 'cgi.rb' which requires 'cgialt' under proper directory such as '/usr/local/lib/ruby/site_ruby/1.8'.</p>
+  <pre>
+$ sudo echo 'require "cgialt"' &gt; /usr/local/lib/ruby/site_ruby/1.8/cgi.rb
+</pre>
+
+  <p>When $DEBUG is true or ENV['DEBUG'] is set, CGIAlt prints release number to $stderr when loaded.</p>
+  <pre>
+$ DEBUG=1 ruby -e 'require "cgi"'
+*** CGIAlt: release 0.0.1
+</pre>
+
+  <h2>Benchmark</h2>
+
+  <p>Try 'bench.rb' included in CGIAlt archive. The following is an example of benchmark.</p>
+  <pre>
+## cgi.rb
+$ ruby -s bench.rb -N=1000
+*** 1000 times                         user    system     total       real
+ruby -e 'nil'                        0.0900    0.8300   11.5400 (  11.9631)
+ruby -e 'require "cgi"'              0.1000    1.2400   24.7000 (  25.2709)
+
+*** 100000 times                       user    system     total       real
+CGI#new (simple)                    20.3100    0.0300   20.3400 (  20.3770)
+CGI#new (complex)                   26.5800    0.0400   26.6200 (  26.6604)
+
+*** 1000000 times                      user    system     total       real
+CGI#header (simple)                 12.6700    0.0100   12.6800 (  12.7137)
+CGI#header (complex)                43.4600    0.0600   43.5200 (  43.5749)
+
+## CGIAlt
+$ ruby -s bench.rb -N=1000 -cgialt
+*** CGIAlt: release 0.0.0
+*** 1000 times                         user    system     total       real
+ruby -e 'nil'                        0.0900    0.8000   11.5900 (  12.0581)
+ruby -e 'require "cgi"'              0.1000    1.2300   19.4800 (  20.0621)
+
+*** 100000 times                       user    system     total       real
+CGI#new (simple)                    14.5000    0.0300   14.5300 (  14.5594)
+CGI#new (complex)                   20.0700    0.0300   20.1000 (  20.1356)
+
+*** 1000000 times                      user    system     total       real
+CGI#header (simple)                  6.0400    0.0100    6.0500 (   6.0553)
+CGI#header (complex)                36.2200    0.0400   36.2600 (  36.3138)
+</pre>
+
+  <p>It is good thing for performance to install <a href="http://rubyforge.org/projects/cgiext/">CGIExt</a> as well as CGIAlt. The following is a benchmark example of using both CGIAlt and CGIExt.</p>
+  <pre>
+## CGIAlt and CGIExt
+$ ruby -s bench.rb -N=1000 -cgialt -cgiext
+*** CGIAlt: release 0.0.0
+*** 1000 times                         user    system     total       real
+ruby -e 'nil'                        0.0900    0.8100   11.6600 (  12.1769)
+ruby -e 'require "cgi","cgiext"'     0.1000    1.2100   20.8400 (  21.5575)
+
+*** 100000 times                       user    system     total       real
+CGI#new (simple)                    12.4200    0.0400   12.4600 (  12.5207)
+CGI#new (complex)                   13.1600    0.0300   13.1900 (  13.2443)
+
+*** 1000000 times                      user    system     total       real
+CGI#header (simple)                  6.0300    0.0100    6.0400 (   6.0651)
+CGI#header (complex)                36.5400    0.0800   36.6200 (  37.0642)
+</pre>
+
+  <p>The following is a summary of above benchmark results.</p>
+  <pre>
+Table 1. summary of benchmark
+                                   cgi.rb      CGIAlt        CGIAlt+CGIExt
+---------------------------------------------------------------------------
+require "cgi"         (x1000)       13.16      7.89 ( 67%)      9.18 ( 43%)
+CGI#new (simple)      (x100000)     20.34     14.53 ( 40%)     12.46 ( 63%)
+CGI#new (comple)      (x100000)     26.62     20.10 ( 32%)     13.19 (102%)
+CGI#header (simple)   (x1000000)    12.68      6.05 (110%)      6.04 (110%)
+CGI#header (complex)  (x1000000)    43.52     36.26 ( 20%)     36.62 ( 19%)
+</pre>
+
+  <h2>License</h2>
+
+  <p>Ruby's license</p>
+
+  <h2>Author</h2>
+
+  <p>makoto kuwata &lt;kwa(at)kuwata-lab.com&gt;</p>
+
+  <h2>Bug reports</h2>
+
+  <p>If you have bugs or questions, report them to kwa(at)kuwata-lab.com.</p>
+</body>
+</html>

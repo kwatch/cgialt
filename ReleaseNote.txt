@@ -1,0 +1,52 @@
+.$ [ANN] CGIAlt 0.0.2 released - FastCGI supported
+
+I have released CGIAlt 0.0.2
+http://rubyforge.org/projects/cgialt/
+
+CGIAlt is an alternative library of 'cgi.rb'.
+
+* Compatible with 'cgi.rb' and CGI class
+* Faster than 'cgi.rb'
+* Available with CGIExt (which is an implementation of cgi.rb in C extension)
+
+Enhancements from 0.0.1:
+
+  - FastCGI supported.
+    You should require 'cgialt/fcgi' instead of 'fcgi' if you want to use
+    CGIAlt with FastCGI.
+
+
+--
+makoto kuwata
+
+.#--------------------------------------------------------------------------------
+
+
+.$ [ANN] CGIAlt 0.0.1 released - an alternative library of 'cgi.rb'
+
+I have released CGIAlt 0.0.1.
+http://rubyforge.org/projects/cgiext/
+
+CGIAlt is an alternative library of 'cgi.rb'.
+
+* Compatible with 'cgi.rb' and CGI class
+* Faster than 'cgi.rb'
+* Available with CGIExt (which is an implementation of cgi.rb in C extension)
+
+The following is an example of benchmark.
+
+                                     cgi.rb      CGIAlt       CGIAlt+CGIExt
+  --------------------------------------------------------------------------
+  require "cgi"         (x1000)       13.16      7.89 ( 67%)     9.18 ( 43%)
+  CGI#new (simple)      (x100000)     20.34     14.53 ( 40%)    12.46 ( 63%)
+  CGI#new (comple)      (x100000)     26.62     20.10 ( 32%)    13.19 (102%)
+  CGI#header (simple)   (x1000000)    12.68      6.05 (110%)     6.04 (110%)
+  CGI#header (complex)  (x1000000)    43.52     36.26 ( 20%)    36.62 ( 19%)
+
+
+See http://cgiext.rubyforge.org/ for details.
+
+--
+makoto kuwata
+
+

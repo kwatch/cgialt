@@ -1,0 +1,126 @@
+##
+## rook --project=cgialt :package
+##
+
+
+properties:
+
+  - project:	cgialt
+  - release:	'0.0.2'
+  - copyright:	copyright(c) 2007 kuwata-lab.com all rights reserved.
+  - rubylib:    ''
+
+
+recipes:
+
+  - product:	:package
+    method*: |
+	## create directory
+	base = "$(project)-$(release)"
+	dir = "build/#{base}"
+	rm_rf dir
+	mkdir_p dir
+	## copy files
+	cp %w[README.txt CHANGES.txt bench.rb bench.fcgi], dir
+	cp %w[$(project).gemspec setup.rb fcgi.README fcgi.README.signals], dir
+	store 'lib/$(project)/**/*.rb', 'lib/$(project).rb', 'test/test_cgi_*.rb', 'test/testdata/**/*', dir
+	#rm_rf "#{dir}/lib/cgi/request.rb"
+	File.open("#{dir}/cgi.rb", 'w') do |f|
+	  f << "require 'cgialt'\n"
+	  f << "begin\n"
+	  f << "  require 'cgiext'\n"
+	  f << "rescue LoadError\n"
+	  f << "end\n"
+	end
+	File.open("#{dir}/fcgi.rb", 'w') do |f|
+	  f << "require 'cgialt/fcgi'\n"
+	end
+	## edit files
+	chdir dir do
+	  edit '**/*' do |s|
+	    s.gsub!(/\$Release:.*?\$/, "$Release: $(release) $")
+	    s.gsub!(/\$Release\$/, "$(release)")
+	    s.gsub!(/\$Copyright\$/, '$(copyright)')
+	    s
+	  end
+	end
+	## create *.gem
+	require 'rubygems'
+	require 'rubygems/gem_runner'
+	chdir dir do
+	  Gem.manage_gems
+	  Gem::GemRunner.new.run ['build', '$(project).gemspec']
+	  mv '$(project)-$(release).gem', '..'
+	end
+	## create *.tar.gz
+	cd 'build' do
+	  tar_czf "#{base}.tar.gz", base
+	end
+
+  - product:	:test
+    method*: |
+	#if @rubylib && !@rubylib.empty?
+	#  ENV['RUBYLIB'] = @rubylib
+	#end
+	ENV['DEBUG'] = '1'
+	ENV['CGI'] = 'cgialt'
+	ENV['RUBYLIB'] = 'lib'
+	puts "DEBUG=1 CGI=cgialt RUBYLIB=lib testrb test"
+	sys "testrb test"
+	#for filename in Dir.glob('test/test_cgi_*.rb')
+	#  filename =~ /_cgi_(.*)\.rb/
+	#  puts "====== #{$1} ======"
+	#  sys "ruby #{filename}"
+	#end
+
+  - product:	index.html
+    method*: |
+	filename = test(?f, s="README-$(project).txt") ? s : "README.txt"
+	projname = 'CGIAlt'
+	download_url = 'http://rubyforge.org/frs/?group_id=5036'
+	tmpfile = @byprod
+	sys "rd2 #{filename} #{tmpfile} | tidy -q -i -wrap 9999 -ashtml > index.html"
+	edit @product do |content|
+	  body = (content =~ /<body>.*<\/body>/m) && $&
+	  body.gsub! /<h1>.*<\/h1>/, "<h1>#{projname}: README.txt</h1>"
+	  body.gsub! /README-$(project)/, 'README'
+	  body.gsub! /<!-- RDLabel: ".*" -->/, ''
+	  body.gsub! /(<h\d>)<a name=".*?" id=".*?">/, '\1'
+	  body.gsub! /<\/a>(<\/h\d>)/, '\1'
+	  body.gsub! /\$Release\$/, '$(release)'
+	  body.gsub! /\$Release:.*?\$/, '$Release: $(release) $'
+	  body.gsub! /\$Copyright\$/, '$(copyright)'
+	  body.sub! /http:\/\/rubyforge.org\/projects\/$(project)\//, '<a href="\&">\&</a>'
+	  body.sub! /$(project)-$(release)\.tar\.gz/, "<a href=\"#{download_url}\">\\&</a>"
+	  body.gsub! /(with|install) (#{projname})/, '\1 <a href="http://rubyforge.org/projects/$(project)/">\2</a>'
+	  html = <<END
+	<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+	<html lang="en">
+	<head>
+	  <title>#{projname}: README.txt</title>
+	  <meta http-equiv="Content-Type" content="text/html; charset=utf8">
+	  <link rel="stylesheet" type="text/css" href="style.css">
+	</head>
+	#{body}
+	</html>
+	END
+	  content[0..-1] = html
+	  content
+	end
+
+  - product:	:try
+    method*: |
+	ENV['DEBUG'] = 'yes'
+	sys "ruby -e 'p ENV[%q|DEBUG|]'"
+
+  - product:	:clean
+    method*: |
+	rm_rf '$(project)-?.?.*'
+
+  - product:	:cgi
+    method*: |
+	if test(?f, 'cgi.rb')
+	  mv 'cgi.rb', 'cgi_rb'
+	elsif test(?f, 'cgi_rb')
+	  mv 'cgi_rb', 'cgi.rb'
+	end
