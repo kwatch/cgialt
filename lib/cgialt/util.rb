@@ -43,7 +43,7 @@ class CGI
   #      # => "Usage: foo \"bar\" <baz>"
   def self.unescapeHTML(string)
     table = UNESCAPE_ENTITIES
-    unicode_p = $KCODE[0] == ?u || $KCODE[0] == ?U
+    utf8_p = $KCODE[0] == ?u || $KCODE[0] == ?U
     return string.gsub(/&#?[a-zA-F0-9]+;/n) do
       match = $&
       key = match[1..-2]
@@ -51,12 +51,12 @@ class CGI
         s
       elsif key =~ /\A#0*(\d+)\z/n
         if   (v = Integer($1)) < 256 ;  v.chr
-        elsif v < 65536 && unicode_p ;  [v].pack("U")
+        elsif v < 65536 && utf8_p    ;  [v].pack("U")
         else                         ;  match
         end
       elsif key =~ /\A#x([0-9a-f]+)\z/ni
         if   (v = $1.hex) < 256      ;  v.chr
-        elsif v < 65536 && unicode_p ;  [v].pack("U")
+        elsif v < 65536 && utf8_p    ;  [v].pack("U")
         else                         ;  match
         end
       else
