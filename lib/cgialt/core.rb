@@ -7,9 +7,9 @@
 ##
 ## Documentation: Wakou Aoyama (RDoc'd and embellished by William Webber)
 ##
-## $Rev: 32 $
-## $Release: 0.0.2 $
-## copyright(c) 2007 kuwata-lab.com all rights reserved.
+## $Rev$
+## $Release: 0.0.0 $
+## $Copyright$
 
 raise "Please, use ruby 1.5.4 or later." if RUBY_VERSION < "1.5.4"
 
@@ -271,7 +271,7 @@ class CGI
   #*# Standard internet newline sequence
   #*EOL = CR + LF
   #*
-  #*REVISION = '$Id: core.rb 32 2007-12-11 04:22:35Z kwatch $' #:nodoc:
+  #*REVISION = '$Id: cgi.rb 12340 2007-05-22 21:58:09Z shyouhei $' #:nodoc:
   #*
   #*NEEDS_BINMODE = true if /WIN/ni.match(RUBY_PLATFORM) 
   #*

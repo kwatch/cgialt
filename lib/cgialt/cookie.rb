@@ -7,9 +7,9 @@
 ##
 ## Documentation: Wakou Aoyama (RDoc'd and embellished by William Webber)
 ##
-## $Rev: 32 $
-## $Release: 0.0.2 $
-## copyright(c) 2007 kuwata-lab.com all rights reserved.
+## $Rev$
+## $Release: 0.0.0 $
+## $Copyright$
 
 class CGI
 

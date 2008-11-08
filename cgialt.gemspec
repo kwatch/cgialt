@@ -1,9 +1,9 @@
 #!/usr/bin/ruby
 
 ###
-### $Rev: 28 $
-### $Release: 0.0.2 $
-### copyright(c) 2007 kuwata-lab.com all rights reserved.
+### $Rev$
+### $Release: 0.0.0 $
+### $Copyright$
 ###
 
 require 'rubygems'
@@ -12,7 +12,7 @@ spec = Gem::Specification.new do |s|
   ## package information
   s.name        = "cgialt"
   s.author      = "makoto kuwata"
-  s.version     = "0.0.2"
+  s.version     = "$Release$"
   s.platform    = Gem::Platform::RUBY
   s.homepage    = "http://cgialt.rubyforge.org/"
   s.summary     = "an alternative of 'cgi.rb' in pure Ruby"

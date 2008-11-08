@@ -1,8 +1,8 @@
 = README.txt
 
-Release: 0.0.2
+Release: $Release$
 
-copyright(c) 2007 kuwata-lab.com all rights reserved.
+$Copyright$
 
 http://rubyforge.org/projects/cgialt/
 
@@ -24,10 +24,10 @@ It is written in pure Ruby but works faster than 'cgi.rb'.
 
 ==  Install
 
-Download cgialt-0.0.2.tar.gz and install it according to the following:
+Download cgialt-$Release$.tar.gz and install it according to the following:
 
-    $ tar xzf cgialt-0.0.2.tar.gz
-    $ cd cgialt-0.0.2/
+    $ tar xzf cgialt-$Release$.tar.gz
+    $ cd cgialt-$Release$/
     $ ruby setup.rb config
     $ ruby setup.rb setup
     $ sudo ruby setup.rb install
@@ -65,7 +65,7 @@ When $DEBUG is true or ENV['DEBUG'] is set, CGIAlt prints release number
 to $stderr when loaded.
 
    $ DEBUG=1 ruby -e 'require "cgi"'
-   *** CGIAlt: release 0.0.2
+   *** CGIAlt: release $Release$
 
 
 == Benchmark
