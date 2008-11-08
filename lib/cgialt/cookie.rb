@@ -78,7 +78,7 @@ class CGI
       if name.is_a?(String)
         @name = name
         @value = value  # value is an Array
-        @path = rexp.match($CGI_ENV['SCRIPT_NAME']) ? $& : ''
+        @path = rexp.match($CGI_ENV['SCRIPT_NAME']) ? $& : ''   # TODO: remove dependency on $CGI_ENV
         @secure = false
       else
         options = name

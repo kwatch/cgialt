@@ -33,7 +33,7 @@ class FCGI
         $stderr = request.err
         #ENV.clear
         #ENV.update(request.env)
-        $CGI_ENV = request.env
+        $CGI_ENV = request.env       # TODO: remove dependency on $CGI_ENV
         yield CGI.new(arg)
         request.finish
       end
