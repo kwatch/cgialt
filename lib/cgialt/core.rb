@@ -304,7 +304,7 @@ class CGI
   # :startdoc:
 
   def env_table
-    ENV
+    $CGI_ENV
   end
   #*** original
   #*def env_table
@@ -430,10 +430,11 @@ class CGI
 
   def _header_for_string(content_type) #:nodoc:
     buf = ''
+    env = env_table()
     if nph?()
-      buf << "#{$CGI_ENV['SERVER_PROTOCOL'] || 'HTTP/1.0'} 200 OK#{EOL}"
+      buf << "#{env['SERVER_PROTOCOL'] || 'HTTP/1.0'} 200 OK#{EOL}"
       buf << "Date: #{CGI.rfc1123_date(Time.now)}#{EOL}"
-      buf << "Server: #{$CGI_ENV['SERVER_SOFTWARE']}#{EOL}"
+      buf << "Server: #{env['SERVER_SOFTWARE']}#{EOL}"
       buf << "Connection: close#{EOL}"
     end
     buf << "Content-Type: #{content_type}#{EOL}"
@@ -446,6 +447,7 @@ class CGI
 
   def _header_for_hash(options)  #:nodoc:
     buf = ''
+    env = env_table()
     ## add charset to option['type']
     options['type'] ||= 'text/html'
     charset = options.delete('charset')
@@ -453,12 +455,12 @@ class CGI
     ## NPH
     options.delete('nph') if defined?(MOD_RUBY)
     if options.delete('nph') || nph?()
-      protocol = $CGI_ENV['SERVER_PROTOCOL'] || 'HTTP/1.0'
+      protocol = env['SERVER_PROTOCOL'] || 'HTTP/1.0'
       status = options.delete('status')
       status = HTTP_STATUS[status] || status || '200 OK'
       buf << "#{protocol} #{status}#{EOL}"
       buf << "Date: #{CGI.rfc1123_date(Time.now)}#{EOL}"
-      options['server'] ||= $CGI_ENV['SERVER_SOFTWARE'] || ''
+      options['server'] ||= env['SERVER_SOFTWARE'] || ''
       options['connection'] ||= 'close'
     end
     ## common headers
@@ -501,7 +503,8 @@ class CGI
   private :_header_for_hash
 
   def nph?  #:nodoc:
-    return /IIS\/(\d+)/n.match($CGI_ENV['SERVER_SOFTWARE']) && $1.to_i < 5
+    env = env_table()
+    return /IIS\/(\d+)/n.match(env['SERVER_SOFTWARE']) && $1.to_i < 5
   end
 
   def _header_for_modruby(buf)  #:nodoc:
@@ -698,6 +701,7 @@ class CGI
   def out(options='text/html') # :yield:
     options = { 'type' => options } if options.kind_of?(String)
     stdout = $stdout
+    env = env_table()
     stdout.binmode if defined? stdout.binmode
     #if ENV['REQUEST_METHOD'] == 'HEAD'
     #  charset = options['charset']
@@ -709,7 +713,7 @@ class CGI
     content = convert_content(content, options)
     options['length'] = content.length.to_s
     stdout.print header(options)
-    stdout.print content unless $CGI_ENV['REQUEST_METHOD'] == 'HEAD'
+    stdout.print content unless env['REQUEST_METHOD'] == 'HEAD'
   end
   def convert_content(content, options)  #:nodoc:
     charset = options['charset']
@@ -830,88 +834,88 @@ class CGI
   module QueryExtension
 
     ## return Integer(ENV['CONTENT_LENGTH'])
-    def content_length    ; return Integer($CGI_ENV['CONTENT_LENGTH']) ; end
+    def content_length    ; return Integer(env_table['CONTENT_LENGTH']) ; end
 
     ## return Integer(ENV['SERVER_PORT'])
-    def server_port       ; return Integer($CGI_ENV['SERVER_PORT'])    ; end
+    def server_port       ; return Integer(env_table['SERVER_PORT'])    ; end
 
     ## return ENV['AUTH_TYPE']
-    def auth_type         ; return $CGI_ENV['AUTH_TYPE']            ; end
+    def auth_type         ; return env_table['AUTH_TYPE']            ; end
 
     ## return ENV['CONTENT_TYPE']
-    def content_type      ; return $CGI_ENV['CONTENT_TYPE']         ; end
+    def content_type      ; return env_table['CONTENT_TYPE']         ; end
 
     ## return ENV['GATEWAY_INTERFACE']
-    def gateway_interface ; return $CGI_ENV['GATEWAY_INTERFACE']    ; end
+    def gateway_interface ; return env_table['GATEWAY_INTERFACE']    ; end
 
     ## return ENV['PATH_INFO']
-    def path_info         ; return $CGI_ENV['PATH_INFO']            ; end
+    def path_info         ; return env_table['PATH_INFO']            ; end
 
     ## return ENV['PATH_TRANSLATED']
-    def path_translated   ; return $CGI_ENV['PATH_TRANSLATED']      ; end
+    def path_translated   ; return env_table['PATH_TRANSLATED']      ; end
 
     ## return ENV['QUERY_STRING']
-    def query_string      ; return $CGI_ENV['QUERY_STRING']         ; end
+    def query_string      ; return env_table['QUERY_STRING']         ; end
 
     ## return ENV['REMOTE_ADDR']
-    def remote_addr       ; return $CGI_ENV['REMOTE_ADDR']          ; end
+    def remote_addr       ; return env_table['REMOTE_ADDR']          ; end
 
     ## return ENV['REMOTE_HOST']
-    def remote_host       ; return $CGI_ENV['REMOTE_HOST']          ; end
+    def remote_host       ; return env_table['REMOTE_HOST']          ; end
 
     ## return ENV['REMOTE_IDENT']
-    def remote_ident      ; return $CGI_ENV['REMOTE_IDENT']         ; end
+    def remote_ident      ; return env_table['REMOTE_IDENT']         ; end
 
     ## return ENV['REMOTE_USER']
-    def remote_user       ; return $CGI_ENV['REMOTE_USER']          ; end
+    def remote_user       ; return env_table['REMOTE_USER']          ; end
 
     ## return ENV['REQUEST_METHOD']
-    def request_method    ; return $CGI_ENV['REQUEST_METHOD']       ; end
+    def request_method    ; return env_table['REQUEST_METHOD']       ; end
 
     ## return ENV['SCRIPT_NAME']
-    def script_name       ; return $CGI_ENV['SCRIPT_NAME']          ; end
+    def script_name       ; return env_table['SCRIPT_NAME']          ; end
 
     ## return ENV['SERVER_NAME']
-    def server_name       ; return $CGI_ENV['SERVER_NAME']          ; end
+    def server_name       ; return env_table['SERVER_NAME']          ; end
 
     ## return ENV['SERVER_PROTOCOL']
-    def server_protocol   ; return $CGI_ENV['SERVER_PROTOCOL']      ; end
+    def server_protocol   ; return env_table['SERVER_PROTOCOL']      ; end
 
     ## return ENV['SERVER_SOFTWARE']
-    def server_software   ; return $CGI_ENV['SERVER_SOFTWARE']      ; end
+    def server_software   ; return env_table['SERVER_SOFTWARE']      ; end
 
     ## return ENV['HTTP_ACCEPT']
-    def accept            ; return $CGI_ENV['HTTP_ACCEPT']          ; end
+    def accept            ; return env_table['HTTP_ACCEPT']          ; end
 
     ## return ENV['HTTP_ACCEPT_CHARSET']
-    def accept_charset    ; return $CGI_ENV['HTTP_ACCEPT_CHARSET']  ; end
+    def accept_charset    ; return env_table['HTTP_ACCEPT_CHARSET']  ; end
 
     ## return ENV['HTTP_ACCEPT_ENCODING']
-    def accept_encoding   ; return $CGI_ENV['HTTP_ACCEPT_ENCODING'] ; end
+    def accept_encoding   ; return env_table['HTTP_ACCEPT_ENCODING'] ; end
 
     ## return ENV['HTTP_ACCEPT_LANGUAGE']
-    def accept_language   ; return $CGI_ENV['HTTP_ACCEPT_LANGUAGE'] ; end
+    def accept_language   ; return env_table['HTTP_ACCEPT_LANGUAGE'] ; end
 
     ## return ENV['HTTP_CACHE_CONTROL']
-    def cache_control     ; return $CGI_ENV['HTTP_CACHE_CONTROL']   ; end
+    def cache_control     ; return env_table['HTTP_CACHE_CONTROL']   ; end
 
     ## return ENV['HTTP_FROM']
-    def from              ; return $CGI_ENV['HTTP_FROM']            ; end
+    def from              ; return env_table['HTTP_FROM']            ; end
 
     ## return ENV['HTTP_HOST']
-    def host              ; return $CGI_ENV['HTTP_HOST']            ; end
+    def host              ; return env_table['HTTP_HOST']            ; end
 
     ## return ENV['HTTP_NEGOTIATE']
-    def negotiate         ; return $CGI_ENV['HTTP_NEGOTIATE']       ; end
+    def negotiate         ; return env_table['HTTP_NEGOTIATE']       ; end
 
     ## return ENV['HTTP_PRAGMA']
-    def pragma            ; return $CGI_ENV['HTTP_PRAGMA']          ; end
+    def pragma            ; return env_table['HTTP_PRAGMA']          ; end
 
     ## return ENV['HTTP_REFERER']
-    def referer           ; return $CGI_ENV['HTTP_REFERER']         ; end
+    def referer           ; return env_table['HTTP_REFERER']         ; end
 
     ## return ENV['HTTP_USER_AGENT']
-    def user_agent        ; return $CGI_ENV['HTTP_USER_AGENT']      ; end
+    def user_agent        ; return env_table['HTTP_USER_AGENT']      ; end
 
     #*** orignal
     #*%w[ CONTENT_LENGTH SERVER_PORT ].each do |env|
@@ -936,7 +940,7 @@ class CGI
 
     # Get the raw cookies as a string.
     def raw_cookie
-      return $CGI_ENV['HTTP_COOKIE']
+      return env_table['HTTP_COOKIE']
     end
     #*** original
     #*def raw_cookie
@@ -946,7 +950,7 @@ class CGI
 
     # Get the raw RFC2965 cookies as a string.
     def raw_cookie2
-      return $CGI_ENV['HTTP_COOKIE2']
+      return env_table['HTTP_COOKIE2']
     end
     #*** original
     #*def raw_cookie2
@@ -1070,7 +1074,7 @@ class CGI
       return body
     end
     def unescape_filename?  #:nodoc:
-      user_agent = $CGI_ENV['HTTP_USER_AGENT']
+      user_agent = env_table['HTTP_USER_AGENT']
       return /Mac/ni.match(user_agent) && /Mozilla/ni.match(user_agent) && !/MSIE/ni.match(user_agent)
     end
     #*** original
@@ -1228,16 +1232,17 @@ class CGI
     # Handles multipart forms (in particular, forms that involve file uploads).
     # Reads query parameters in the @params field, and cookies into @cookies.
     def initialize_query()
-      case $CGI_ENV['REQUEST_METHOD']
+      env = env_table()
+      case env_table()['REQUEST_METHOD']
       when 'GET', 'HEAD'
-        query_str = defined?(MOD_RUBY) ? Apache::request.args : $CGI_ENV['QUERY_STRING']
+        query_str = defined?(MOD_RUBY) ? Apache::request.args : env['QUERY_STRING']
         @params = CGI.parse(query_str || '')
         @multipart = false
       when 'POST'
-        content_length = Integer($CGI_ENV['CONTENT_LENGTH'])
-        if /\Amultipart\/form-data/.match($CGI_ENV['CONTENT_TYPE'])
+        content_length = Integer(env['CONTENT_LENGTH'])
+        if /\Amultipart\/form-data/.match(env['CONTENT_TYPE'])
           raise StandardError.new("too large multipart data.") if content_length > MAX_MULTIPART_LENGTH
-          unless /boundary=(?:"([^";,]+?)"|([^;,\s]+))/.match($CGI_ENV['CONTENT_TYPE'])
+          unless /boundary=(?:"([^";,]+?)"|([^;,\s]+))/.match(env['CONTENT_TYPE'])
             raise StandardError.new("no boundary of multipart data.")
           end
           boundary = $1 || $2
@@ -1255,7 +1260,7 @@ class CGI
         @params = Hash.new([].freeze)
         @multipart = false
       end
-      @cookies = CGI::Cookie.parse($CGI_ENV['HTTP_COOKIE'] || $CGI_ENV['COOKIE'])
+      @cookies = CGI::Cookie.parse(env['HTTP_COOKIE'] || env['COOKIE'])
       nil
     end
     private :initialize_query
@@ -1389,7 +1394,8 @@ class CGI
   # cookies and other parameters are parsed automatically from the standard
   # CGI locations, which varies according to the REQUEST_METHOD.
   def initialize(type=nil)
-    if defined?(MOD_RUBY) && !$CGI_ENV['GATEWAY_INTERFACE']
+    env = env_table()
+    if defined?(MOD_RUBY) && !env['GATEWAY_INTERFACE']
       Apache.request.setup_cgi_env
     end
     ##
