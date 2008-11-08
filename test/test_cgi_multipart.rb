@@ -36,6 +36,16 @@ class MultiPart
   end
   attr_reader :boundary
 
+  if "".respond_to?(:encoding) && "".respond_to?(:force_encoding)   # Ruby1.9
+    def _convert_encoding(str, str2)
+      str.force_encoding(str2.encoding)
+    end
+  else
+    def _convert_encoding(str, str2)
+      str
+    end
+  end
+
   def append(name, value, filename=nil, content_type=nil)
     content_type = detect_content_type(filename) if filename && content_type.nil?
     s = filename ? "; filename=\"#{filename}\"" : ''
@@ -44,6 +54,7 @@ class MultiPart
     buf << "Content-Disposition: form-data: name=\"#{name}\"#{s}\r\n"
     buf << "Content-Type: #{content_type}\r\n" if content_type
     buf << "\r\n"
+    buf = _convert_encoding(buf, value)
     buf << value
     buf << "\r\n"
     return self
@@ -151,7 +162,11 @@ class CGIMultipartTest < Test::Unit::TestCase
       expected = hash[:value]
       expected_class = @expected_class || (hash[:value].length < threshold ? StringIO : Tempfile)
       assert_kind_of(expected_class, cgi[name])
-      assert_equal(expected, cgi[name].read())
+      actual = cgi[name].read()
+      if "".respond_to?(:encoding)            # Ruby1.9
+        expected = expected.force_encoding(actual.encoding)
+      end
+      assert_equal(expected, actual)
       assert_equal(hash[:filename] || '', cgi[name].original_filename) #if hash[:filename]
       assert_equal(hash[:content_type] || '', cgi[name].content_type)  #if hash[:content_type]
     end
@@ -190,7 +205,11 @@ class CGIMultipartTest < Test::Unit::TestCase
       {:name=>'image1',  :value=>_read('large.png'),
        :filename=>'large.png',  :content_type=>'image/png'},  # large image
     ]
-    @expected_class = Tempfile
+    if "".respond_to?(:encoding)         # Ruby1.9
+      @expected_class = File
+    else
+      @expected_class = Templfile
+    end
     _test_multipart()
   end
 
@@ -248,6 +267,9 @@ class CGIMultipartTest < Test::Unit::TestCase
        :filename=>'file1.html', :content_type=>'text/html'},
     ]
     _prepare(@data) do |input|
+      if input.respond_to?(:encoding)    # Ruby1.9
+        input = input.force_encoding('ASCII-8BIT')
+      end
       input2 = input.sub(/--(\r\n)?\z/, "\r\n")
       assert input2 != input
       #p input2
@@ -259,6 +281,9 @@ class CGIMultipartTest < Test::Unit::TestCase
     assert_equal("bad boundary end of body part", ex.message)
     #
     _prepare(@data) do |input|
+      if input.respond_to?(:encoding)    # Ruby1.9
+        input = input.force_encoding('ASCII-8BIT')
+      end
       input2 = input.sub(/--(\r\n)?\z/, "")
       assert input2 != input
       #p input2
