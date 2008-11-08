@@ -31,7 +31,7 @@
 # protocol.
 
 class CGI
-  RELEASE = ('$Release: 0.0.1 $' =~ /[.\d]+/) && $&
+  RELEASE = ('$Release: 0.0.2 $' =~ /[.\d]+/) && $&
   if $DEBUG || ENV['DEBUG']
     $stderr.puts "*** CGIAlt: release #{RELEASE}"
   end

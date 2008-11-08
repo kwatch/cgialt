@@ -1,6 +1,6 @@
 ##
 ## $Rev: 30 $
-## $Release: 0.0.1 $
+## $Release: 0.0.2 $
 ## copyright(c) 2007 kuwata-lab.com all rights reserved.
 ##
 

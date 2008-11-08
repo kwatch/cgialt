@@ -1,6 +1,4 @@
 ##
-## copyright(c) 2007 kuwata-lab.com all rights reserved.
-##
 ## Copyright (C) 2000  Network Applied Communication Laboratory, Inc.
 ##
 ## Copyright (C) 2000  Information-technology Promotion Agency, Japan
@@ -9,6 +7,9 @@
 ##
 ## Documentation: Wakou Aoyama (RDoc'd and embellished by William Webber)
 ##
+## $Rev: 32 $
+## $Release: 0.0.2 $
+## copyright(c) 2007 kuwata-lab.com all rights reserved.
 
 class CGI
 
@@ -77,13 +78,13 @@ class CGI
       if name.is_a?(String)
         @name = name
         @value = value  # value is an Array
-        @path = rexp.match(ENV['SCRIPT_NAME']) ? $& : ''
+        @path = rexp.match($CGI_ENV['SCRIPT_NAME']) ? $& : ''
         @secure = false
       else
         options = name
         @name  = options['name']  or raise ArgumentError, "`name' required"
         @value = Array(options['value'])
-        @path  = options['path'] || (rexp.match(ENV['SCRIPT_NAME']) ? $& : '')  # simple support for IE
+        @path  = options['path'] || (rexp.match($CGI_ENV['SCRIPT_NAME']) ? $& : '')  # simple support for IE
         @domain  = options['domain']
         @expires = options['expires']
         @secure  = options['secure'] == true

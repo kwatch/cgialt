@@ -1,0 +1,13 @@
+## $Rev$
+## 0.0.2
+## copyright(c) 2007 kuwata-lab.com all rights reserved.
+
+
+- release: 0.0.2
+  date: 2007-12-11
+  enhancements:
+    - FastCGI supported. If you required 'cgialt/fcgi' instead of 'fcgi',
+      you can use FCGI.each_cgi() method.
+
+- release: 0.0.1
+  date: 2007-12-09

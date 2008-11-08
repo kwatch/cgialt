@@ -1,8 +1,10 @@
 = README.txt
 
-Release: 0.0.1
+Release: 0.0.2
 
 copyright(c) 2007 kuwata-lab.com all rights reserved.
+
+http://rubyforge.org/projects/cgialt/
 
 
 ==  About
@@ -17,14 +19,15 @@ It is written in pure Ruby but works faster than 'cgi.rb'.
 * Faster and more lightweight than 'cgi.rb'.
 * Available to install with CGIExt (which is a re-implementation of 'cgi.rb'
   in C extension).
+* FastCGI support
 
 
 ==  Install
 
-Download cgialt-0.0.1.tar.gz and install it according to the following:
+Download cgialt-0.0.2.tar.gz and install it according to the following:
 
-    $ tar xzf cgialt-0.0.1.tar.gz
-    $ cd cgialt-0.0.1/
+    $ tar xzf cgialt-0.0.2.tar.gz
+    $ cd cgialt-0.0.2/
     $ ruby setup.rb config
     $ ruby setup.rb setup
     $ sudo ruby setup.rb install
@@ -45,17 +48,24 @@ CGI class which is compatible with 'cgi.rb'.
    require 'rubygems'   # if you have installed with RubyGems
    require 'cgialt'
 
+If you want to use CGIAlt with FastCGI (fcgi.rb), require 'cgialt/fcgi'
+instead of 'fcgi'.
+
+   require 'cgialt'
+   require 'cgialt/fcgi'
+
 If you want to replace original 'cgi.rb' entirely by 'cgialt',
 create 'cgi.rb' which requires 'cgialt' under proper directory such as
 '/usr/local/lib/ruby/site_ruby/1.8'.
 
    $ sudo echo 'require "cgialt"' > /usr/local/lib/ruby/site_ruby/1.8/cgi.rb
+   $ sudo echo 'require "cgialt/fcgi"' > /usr/local/lib/ruby/site_ruby/1.8/fcgi.rb
 
 When $DEBUG is true or ENV['DEBUG'] is set, CGIAlt prints release number
 to $stderr when loaded.
 
    $ DEBUG=1 ruby -e 'require "cgi"'
-   *** CGIAlt: release 0.0.1
+   *** CGIAlt: release 0.0.2
 
 
 == Benchmark
@@ -92,8 +102,9 @@ The following is an example of benchmark.
     CGI#header (simple)                  6.0400    0.0100    6.0500 (   6.0553)
     CGI#header (complex)                36.2200    0.0400   36.2600 (  36.3138)
 
+
 It is good thing for performance to install CGIExt as well as CGIAlt.
-The following is an benchmark example of using both CGIAlt and CGIExt.
+The following is a benchmark example of using both CGIAlt and CGIExt.
 
     ## CGIAlt and CGIExt
     $ ruby -s bench.rb -N=1000 -cgialt -cgiext
@@ -110,16 +121,28 @@ The following is an benchmark example of using both CGIAlt and CGIExt.
     CGI#header (simple)                  6.0300    0.0100    6.0400 (   6.0651)
     CGI#header (complex)                36.5400    0.0800   36.6200 (  37.0642)
 
+
 The following is a summary of above benchmark results.
 
-     Table 1. summary of benchmark
-                                          cgi.rb      CGIAlt   CGIAlt+CGIExt
-     -----------------------------------------------------------------------
-     require "cgi"         (x1000)         13.16        7.89         9.18
-     CGI#new (simple)      (x100000)       20.34       14.53        12.46
-     CGI#new (comple)      (x100000)       26.62       20.10        13.19
-     CGI#header (simple)   (x1000000)      12.68        6.05         6.04
-     CGI#header (complex)  (x1000000)      43.52       36.26        36.62
+    Table 1. summary of benchmark
+                                       cgi.rb      CGIAlt        CGIAlt+CGIExt
+    ---------------------------------------------------------------------------
+    require "cgi"         (x1000)       13.16      7.89 ( 67%)      9.18 ( 43%)
+    CGI#new (simple)      (x100000)     20.34     14.53 ( 40%)     12.46 ( 63%)
+    CGI#new (comple)      (x100000)     26.62     20.10 ( 32%)     13.19 (102%)
+    CGI#header (simple)   (x1000000)    12.68      6.05 (110%)      6.04 (110%)
+    CGI#header (complex)  (x1000000)    43.52     36.26 ( 20%)     36.62 ( 19%)
+
+
+Another benchmark script 'bench.fcgi' is provided. It is for FastCGI.
+The following is an example result of benchmark.
+
+    Table 2. result of bench.fcgi
+                                   Time taken for tests     Request per second
+    --------------------------------------------------------------------------
+    cgi    + fcgi                          16.686 [sec]        1198.61 [#/sec]
+    cgialt + cgialt/fcgi                   15.562 [sec]        1285.18 [#/sec]
+    cgialt + cgialt/fcgi + cgiext          15.310 [sec]        1306.34 [#/sec]
 
 
 == License
@@ -127,7 +150,7 @@ The following is a summary of above benchmark results.
 Ruby's license
 
 
-== Authoer
+== Author
 
 makoto kuwata <kwa(at)kuwata-lab.com>
 
