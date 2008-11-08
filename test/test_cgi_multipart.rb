@@ -208,7 +208,7 @@ class CGIMultipartTest < Test::Unit::TestCase
     if "".respond_to?(:encoding)         # Ruby1.9
       @expected_class = File
     else
-      @expected_class = Templfile
+      @expected_class = Tempfile
     end
     _test_multipart()
   end
