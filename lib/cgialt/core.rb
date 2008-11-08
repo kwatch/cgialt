@@ -999,7 +999,12 @@ class CGI
       raise EOFError.new("bad content body") unless first_line == status
       ## parse and set params
       params = {}
-      boundary_rexp = /--#{Regexp.quote(boundary, 'n')}(#{EOL}|--)/n
+      begin
+        quoted = Regexp.quote(boundary, 'n')
+      rescue ArgumentError
+        quoted = Regexp.quote(boundary)    # Ruby1.9
+      end
+      boundary_rexp = /--#{quoted}(#{EOL}|--)/n
       boundary_size = "#{EOL}--#{boundary}#{EOL}".length
       boundary_end  = nil
       buf = ''
