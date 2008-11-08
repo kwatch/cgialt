@@ -109,7 +109,7 @@ class CGIMultipartTest < Test::Unit::TestCase
   end
 
   def teardown
-    %[REQUEST_METHOD CONTENT_TYPE CONTENT_LENGTH REQUEST_METHOD].each do |name|
+    %w[REQUEST_METHOD CONTENT_TYPE CONTENT_LENGTH REQUEST_METHOD].each do |name|
       ENV.delete(name)
     end
     $stdin.close() if $stdin.is_a?(Tempfile)
