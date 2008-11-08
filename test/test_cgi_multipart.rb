@@ -1,6 +1,6 @@
 require 'test/unit'
 #require 'cgi'
-require(ENV['CGI'] || 'cgi')
+require(ENV['CGI'] || 'cgialt')
 require 'tempfile'
 require 'stringio'
 
