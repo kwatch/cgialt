@@ -30,9 +30,7 @@ Download cgialt-$Release$.tar.gz and install it according to the following:
 
     $ tar xzf cgialt-$Release$.tar.gz
     $ cd cgialt-$Release$/
-    $ ruby setup.rb config
-    $ ruby setup.rb setup
-    $ sudo ruby setup.rb install
+    $ sudo ruby setup.rb
 
 Or if you have installed RubyGems, you can install CGIAlt by 'gem' command.
 
