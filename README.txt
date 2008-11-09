@@ -54,6 +54,19 @@ instead of 'fcgi'.
    require 'cgialt'
    require 'cgialt/fcgi'
 
+If you want require 'cgi' when CGIAlt is not installed, try the following.
+
+   begin
+     require 'cgialt'
+   rescue LoadError
+     require 'cgi'
+   end
+   begin
+     reqiure 'cgialt/fcgi'
+   rescue LoadError
+     require 'fcgi'
+   end
+
 If you want to replace original 'cgi.rb' entirely by 'cgialt',
 create 'cgi.rb' which requires 'cgialt' under proper directory such as
 '/usr/local/lib/ruby/site_ruby/1.8'.

@@ -1,4 +1,10 @@
 ##
+## $Rev$
+## $Release: 0.0.0 $
+## $Copyright$
+##
+
+##
 ## Copyright (C) 2000  Network Applied Communication Laboratory, Inc.
 ##
 ## Copyright (C) 2000  Information-technology Promotion Agency, Japan
@@ -7,9 +13,6 @@
 ##
 ## Documentation: Wakou Aoyama (RDoc'd and embellished by William Webber)
 ##
-## $Rev$
-## $Release: 0.0.0 $
-## $Copyright$
 
 raise "Please, use ruby 1.5.4 or later." if RUBY_VERSION < "1.5.4"
 

@@ -8,9 +8,9 @@
 <body>
   <h1>CGIAlt: README.txt</h1>
 
-  <p>Release: 0.0.1</p>
+  <p>Release: 1.0.0</p>
 
-  <p>copyright(c) 2007 kuwata-lab.com all rights reserved.</p>
+  <p>copyright(c) 2007-2008 kuwata-lab.com all rights reserved.</p>
 
   <p><a href="http://rubyforge.org/projects/cgialt/">http://rubyforge.org/projects/cgialt/</a></p>
 
@@ -25,21 +25,23 @@
 
     <li>Faster and more lightweight than 'cgi.rb'.</li>
 
-    <li>Available to install with <a href="http://rubyforge.org/projects/cgiext/">CGIExt</a> (which is a re-implementation of 'cgi.rb' in C extension).</li>
+    <li>Available to install with CGIExt (which is a re-implementation of 'cgi.rb' in C extension).</li>
+
+    <li>FastCGI support</li>
   </ul>
 
   <h2>Install</h2>
 
-  <p>Download <a href="http://rubyforge.org/frs/?group_id=5036">cgialt-0.0.1.tar.gz</a> and install it according to the following:</p>
+  <p>Download <a href="http://rubyforge.org/frs/?group_id=5036">cgialt-1.0.0.tar.gz</a> and install it according to the following:</p>
   <pre>
-$ tar xzf cgialt-0.0.1.tar.gz
-$ cd cgialt-0.0.1/
+$ tar xzf cgialt-1.0.0.tar.gz
+$ cd cgialt-1.0.0/
 $ ruby setup.rb config
 $ ruby setup.rb setup
 $ sudo ruby setup.rb install
 </pre>
 
-  <p>Or if you have installed RubyGems, you can install CGIAlt by 'gem' command.</p>
+  <p>Or if you have installed RubyGems, you can install <a href="http://rubyforge.org/projects/cgialt/">CGIAlt</a> by 'gem' command.</p>
   <pre>
 $ sudo gem install cgialt
 </pre>
@@ -54,15 +56,22 @@ require 'rubygems'   # if you have installed with RubyGems
 require 'cgialt'
 </pre>
 
+  <p>If you want to use CGIAlt with FastCGI (fcgi.rb), require 'cgialt/fcgi' instead of 'fcgi'.</p>
+  <pre>
+require 'cgialt'
+require 'cgialt/fcgi'
+</pre>
+
   <p>If you want to replace original 'cgi.rb' entirely by 'cgialt', create 'cgi.rb' which requires 'cgialt' under proper directory such as '/usr/local/lib/ruby/site_ruby/1.8'.</p>
   <pre>
 $ sudo echo 'require "cgialt"' &gt; /usr/local/lib/ruby/site_ruby/1.8/cgi.rb
+$ sudo echo 'require "cgialt/fcgi"' &gt; /usr/local/lib/ruby/site_ruby/1.8/fcgi.rb
 </pre>
 
   <p>When $DEBUG is true or ENV['DEBUG'] is set, CGIAlt prints release number to $stderr when loaded.</p>
   <pre>
 $ DEBUG=1 ruby -e 'require "cgi"'
-*** CGIAlt: release 0.0.1
+*** CGIAlt: release 1.0.0
 </pre>
 
   <h2>Benchmark</h2>
@@ -99,7 +108,7 @@ CGI#header (simple)                  6.0400    0.0100    6.0500 (   6.0553)
 CGI#header (complex)                36.2200    0.0400   36.2600 (  36.3138)
 </pre>
 
-  <p>It is good thing for performance to install <a href="http://rubyforge.org/projects/cgiext/">CGIExt</a> as well as CGIAlt. The following is a benchmark example of using both CGIAlt and CGIExt.</p>
+  <p>It is good thing for performance to install CGIExt as well as CGIAlt. The following is a benchmark example of using both CGIAlt and CGIExt.</p>
   <pre>
 ## CGIAlt and CGIExt
 $ ruby -s bench.rb -N=1000 -cgialt -cgiext
@@ -127,6 +136,16 @@ CGI#new (simple)      (x100000)     20.34     14.53 ( 40%)     12.46 ( 63%)
 CGI#new (comple)      (x100000)     26.62     20.10 ( 32%)     13.19 (102%)
 CGI#header (simple)   (x1000000)    12.68      6.05 (110%)      6.04 (110%)
 CGI#header (complex)  (x1000000)    43.52     36.26 ( 20%)     36.62 ( 19%)
+</pre>
+
+  <p>Another benchmark script 'bench.fcgi' is provided. It is for FastCGI. The following is an example result of benchmark.</p>
+  <pre>
+Table 2. result of bench.fcgi
+                               Time taken for tests     Request per second
+--------------------------------------------------------------------------
+cgi    + fcgi                          16.686 [sec]        1198.61 [#/sec]
+cgialt + cgialt/fcgi                   15.562 [sec]        1285.18 [#/sec]
+cgialt + cgialt/fcgi + cgiext          15.310 [sec]        1306.34 [#/sec]
 </pre>
 
   <h2>License</h2>

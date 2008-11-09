@@ -1,4 +1,10 @@
 ##
+## $Rev$
+## $Release: 0.0.0 $
+## $Copyright$
+##
+
+##
 ## Copyright (C) 2000  Network Applied Communication Laboratory, Inc.
 ##
 ## Copyright (C) 2000  Information-technology Promotion Agency, Japan

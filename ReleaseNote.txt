@@ -1,3 +1,94 @@
+.$ [ANN] CGIAlt 1.0.0 released - re-implementation of cgi.rb
+
+I have released CGIAlt 1.0.0.
+http://cgialt.rubyforge.org/
+http://rubyforge.org/projects/cgialt/
+
+CGIAlt is a re-implementation of 'cgi.rb'.
+
+
+Features
+--------
+
+* Compatible with 'cgi.rb' and CGI class
+* Faster than 'cgi.rb'
+* Available with CGIExt (which is an implementation of cgi.rb in C extension)
+* FastCGI support
+* Ruby 1.9 support
+
+
+Install
+-------
+
+   $ tar xzf cgialt-1.0.0.tar.gz
+   $ cd cgialt-1.0.0
+   $ sudo ruby setup.rb
+
+or
+
+   $ sudo gem install cgialt
+
+
+Usage
+-----
+
+If you want to use CGIAlt instead of 'cgi.rb':
+
+   require 'cgialt'
+
+If you want to load 'cgi.rb' when CGIAlt is not installed:
+
+   begin
+     require 'cgialt'
+   rescue LoadError
+     require 'cgi'
+   end
+
+If you want replace 'cgi.rb' with CGIAlt, create new 'cgi.rb':
+
+   $ cd /usr/local/lib/ruby1.8/site_ruby
+   $ sudo echo "require 'cgialt'" > cgi.rb
+
+
+Enhancements from 0.0.2
+-----------------------
+
+* Ruby 1.9 support
+* Add tests for 'cgialt/util.rb'.
+
+
+Changges from 0.0.2
+-------------------
+
+* CGI class now uses CGI#env_table() instead of using $CGI_ENV directly.
+* CGI class now uses CGI#stdinput() and CGI#stdoutput() instead of using $stdin and $stdout directly.
+* Refactor 'cgialt/fcgi/core.rb'.
+
+
+Bugfixes from 0.0.2
+-------------------
+
+* CGI.parse() supports to parse 'a=10&b' (no '=').
+* CGI.parse() returned NoMethodError when QUERY_STRING was "&=10". Now fixed.
+* CGI.unescapeHTML() couldn't convert "&#32;". Now fixed.
+* Typo fixed in CGI::Cookie.parse().
+* Move RFC822_DAYS and RFC822_MONTHS from 'cgi/core.rb' to 'cgi/util.rb'.
+
+
+License
+-------
+
+Ruby's
+
+
+--
+regards,
+makoto kuwata
+
+
+.#--------------------------------------------------------------------------------
+
+
 .$ [ANN] CGIAlt 0.0.2 released - FastCGI supported
 
 I have released CGIAlt 0.0.2
