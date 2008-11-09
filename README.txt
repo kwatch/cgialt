@@ -4,7 +4,9 @@ Release: $Release$
 
 $Copyright$
 
+http://cgialt.rubyforge.org/
 http://rubyforge.org/projects/cgialt/
+http://github.com/kwatch/cgialt/
 
 
 ==  About

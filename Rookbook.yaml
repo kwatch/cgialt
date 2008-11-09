@@ -94,7 +94,9 @@ recipes:
 	  body.gsub! /\$Release\$/, '$(release)'
 	  body.gsub! /\$Release:.*?\$/, '$Release: $(release) $'
 	  body.gsub! /\$Copyright\$/, '$(copyright)'
-	  body.sub! /http:\/\/rubyforge.org\/projects\/$(project)\//, '<a href="\&">\&</a>'
+	  body.sub! /http:\/\/rubyforge.org\/projects\/$(project)\//, '<a href="\&">\&</a><br />'
+	  body.sub! /http:\/\/$(project).rubyforge.org\//, '<a href="\&">\&</a><br />'
+	  body.sub! /http:\/\/github.com\/kwatch\/$(project)\//, '<a href="\&">\&</a><br />'
 	  body.sub! /$(project)-$(release)\.tar\.gz/, "<a href=\"#{download_url}\">\\&</a>"
 	  body.gsub! /(with|install) (#{projname})/, '\1 <a href="http://rubyforge.org/projects/$(project)/">\2</a>'
 	  html = <<END
